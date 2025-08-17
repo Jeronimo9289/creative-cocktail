@@ -1,0 +1,794 @@
+<!-- ================================ -->
+<!-- app/templates/backoffice/base.html -->
+<!-- ================================ -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if title %}{{ title }} - {% endif %}Administration - Creative Cocktail</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="bg-light">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-cogs me-2"></i>Administration</h4>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('backoffice.dashboard') }}">
+                    <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('backoffice.users') }}">
+                    <i class="fas fa-users me-2"></i>Utilisateurs
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('backoffice.providers') }}">
+                    <i class="fas fa-building me-2"></i>Prestataires
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('backoffice.events') }}">
+                    <i class="fas fa-calendar-alt me-2"></i>Événements
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('backoffice.venues') }}">
+                    <i class="fas fa-map-marker-alt me-2"></i>Lieux
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('backoffice.statistics') }}">
+                    <i class="fas fa-chart-bar me-2"></i>Statistiques
+                </a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                    <i class="fas fa-cog me-2"></i>Configuration
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">Paramètres généraux</a></li>
+                    <li><a class="dropdown-item" href="#">Catégories</a></li>
+                    <li><a class="dropdown-item" href="#">Templates email</a></li>
+                </ul>
+            </li>
+        </ul>
+        
+        <div class="sidebar-footer">
+            <a href="{{ url_for('frontend.index') }}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-arrow-left me-2"></i>Retour au site
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <!-- Top navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container-fluid">
+                <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="navbar-nav ms-auto">
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>{{ current_user.get_full_name() or current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('frontend.dashboard') }}">Mon compte</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('frontend.logout') }}">Déconnexion</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page content -->
+        <div class="container-fluid py-4">
+            <!-- Messages Flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+
+<!-- ================================ -->
+<!-- app/templates/backoffice/dashboard.html -->
+<!-- ================================ -->
+
+{% extends "backoffice/base.html" %}
+{% set title = "Tableau de bord" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3">Tableau de bord administrateur</h1>
+        <p class="text-muted">Vue d'ensemble de la plateforme Creative Cocktail</p>
+    </div>
+</div>
+
+<!-- Statistiques principales -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Utilisateurs totaux
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_users }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Événements
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_events }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Prestataires vérifiés
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.verified_providers }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-building fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            En attente de validation
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pending_providers }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Graphique des inscriptions -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Évolution des inscriptions</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="myAreaChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Répartition des utilisateurs -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Types d'utilisateurs</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="myPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tables récentes -->
+<div class="row">
+    <!-- Nouveaux utilisateurs -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Nouveaux utilisateurs</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Type</th>
+                                <th>Date d'inscription</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in new_users %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('backoffice.user_detail', id=user.id) }}">
+                                        {{ user.get_full_name() or user.username }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'primary' if user.user_type.value == 'client' else 'info' }}">
+                                        {{ user.user_type.value | title }}
+                                    </span>
+                                </td>
+                                <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Événements récents -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Événements récents</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Événement</th>
+                                <th>Organisateur</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in recent_events %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('frontend.event_detail', id=event.id) }}">
+                                        {{ event.title }}
+                                    </a>
+                                </td>
+                                <td>{{ event.organizer.get_full_name() or event.organizer.username }}</td>
+                                <td>
+                                    {% if event.start_date %}
+                                        {{ event.start_date.strftime('%d/%m/%Y') }}
+                                    {% else %}
+                                        <span class="text-muted">Non définie</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Graphique d'évolution des inscriptions
+const ctx = document.getElementById('myAreaChart');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+        datasets: [{
+            label: 'Inscriptions',
+            data: [10, 25, 30, 45, 60, 80],
+            borderColor: 'rgb(78, 115, 223)',
+            backgroundColor: 'rgba(78, 115, 223, 0.1)',
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Graphique circulaire des types d'utilisateurs
+const ctx2 = document.getElementById('myPieChart');
+new Chart(ctx2, {
+    type: 'pie',
+    data: {
+        labels: ['Clients', 'Prestataires', 'Administrateurs'],
+        datasets: [{
+            data: [70, 25, 5],
+            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+{% endblock %}
+
+<!-- ================================ -->
+<!-- app/templates/backoffice/users.html -->
+<!-- ================================ -->
+
+{% extends "backoffice/base.html" %}
+{% set title = "Gestion des utilisateurs" %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Gestion des utilisateurs</h1>
+</div>
+
+<!-- Filtres -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Recherche</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Nom, email, username..." 
+                       value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Type d'utilisateur</label>
+                <select name="user_type" class="form-select">
+                    <option value="">Tous</option>
+                    <option value="client" {% if request.args.get('user_type') == 'client' %}selected{% endif %}>Clients</option>
+                    <option value="provider" {% if request.args.get('user_type') == 'provider' %}selected{% endif %}>Prestataires</option>
+                    <option value="admin" {% if request.args.get('user_type') == 'admin' %}selected{% endif %}>Administrateurs</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Statut</label>
+                <select name="status" class="form-select">
+                    <option value="">Tous</option>
+                    <option value="active" {% if request.args.get('status') == 'active' %}selected{% endif %}>Actifs</option>
+                    <option value="inactive" {% if request.args.get('status') == 'inactive' %}selected{% endif %}>Inactifs</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-2"></i>Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table des utilisateurs -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            Utilisateurs ({{ users.total }} au total)
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Type</th>
+                        <th>Email</th>
+                        <th>Inscription</th>
+                        <th>Dernière connexion</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users.items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-3">
+                                    <i class="fas fa-user-circle fa-2x text-gray-400"></i>
+                                </div>
+                                <div>
+                                    <div class="font-weight-bold">{{ user.get_full_name() or user.username }}</div>
+                                    <div class="text-muted small">@{{ user.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'primary' if user.user_type.value == 'client' else 'info' if user.user_type.value == 'provider' else 'danger' }}">
+                                {{ user.user_type.value | title }}
+                            </span>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            {% if user.last_login %}
+                                {{ user.last_login.strftime('%d/%m/%Y %H:%M') }}
+                            {% else %}
+                                <span class="text-muted">Jamais</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('backoffice.user_detail', id=user.id) }}" 
+                                   class="btn btn-outline-primary" title="Voir détails">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('backoffice.toggle_user_status', id=user.id) }}" 
+                                      style="display: inline;">
+                                    <button type="submit" 
+                                            class="btn btn-outline-{{ 'danger' if user.is_active else 'success' }}"
+                                            title="{{ 'Désactiver' if user.is_active else 'Activer' }}"
+                                            onclick="return confirm('Êtes-vous sûr ?')">
+                                        <i class="fas fa-{{ 'ban' if user.is_active else 'check' }}"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if users.pages > 1 %}
+        <nav aria-label="Pagination">
+            <ul class="pagination justify-content-center">
+                {% if users.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('backoffice.users', page=users.prev_num, **request.args) }}">
+                        Précédent
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in users.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != users.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('backoffice.users', page=page_num, **request.args) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">…</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if users.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('backoffice.users', page=users.next_num, **request.args) }}">
+                        Suivant
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+<!-- ================================ -->
+<!-- app/templates/backoffice/providers.html -->
+<!-- ================================ -->
+
+{% extends "backoffice/base.html" %}
+{% set title = "Gestion des prestataires" %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Gestion des prestataires</h1>
+</div>
+
+<!-- Statistiques rapides -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="h4 mb-0">{{ providers.query.filter_by(is_verified=True).count() }}</div>
+                        <div class="small">Vérifiés</div>
+                    </div>
+                    <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="h4 mb-0">{{ providers.query.filter_by(is_verified=False).count() }}</div>
+                        <div class="small">En attente</div>
+                    </div>
+                    <i class="fas fa-clock fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="h4 mb-0">{{ providers.query.filter_by(is_premium=True).count() }}</div>
+                        <div class="small">Premium</div>
+                    </div>
+                    <i class="fas fa-crown fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="h4 mb-0">{{ providers.total }}</div>
+                        <div class="small">Total</div>
+                    </div>
+                    <i class="fas fa-building fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Statut</label>
+                <select name="status" class="form-select">
+                    <option value="">Tous</option>
+                    <option value="verified" {% if request.args.get('status') == 'verified' %}selected{% endif %}>Vérifiés</option>
+                    <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>En attente</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Catégorie</label>
+                <select name="category" class="form-select">
+                    <option value="">Toutes</option>
+                    <option value="lieu">Lieux</option>
+                    <option value="decoration_mobilier">Décoration/Mobilier</option>
+                    <option value="transport">Transport</option>
+                    <option value="restauration">Restauration</option>
+                    <option value="animation">Animation</option>
+                    <option value="activite">Activités</option>
+                    <option value="support_communication">Communication</option>
+                    <option value="technique">Technique</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Recherche</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Nom de l'entreprise..."
+                       value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-2"></i>Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table des prestataires -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            Prestataires ({{ providers.total }} au total)
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Entreprise</th>
+                        <th>Catégorie</th>
+                        <th>Contact</th>
+                        <th>Note</th>
+                        <th>Statut</th>
+                        <th>Inscription</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for provider in providers.items %}
+                    <tr>
+                        <td>
+                            <div>
+                                <div class="font-weight-bold">{{ provider.company_name }}</div>
+                                <div class="text-muted small">{{ provider.user.city or 'Ville non renseignée' }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                {{ provider.category.value | replace('_', ' ') | title }}
+                            </span>
+                        </td>
+                        <td>
+                            <div>
+                                <div>{{ provider.user.get_full_name() or provider.user.username }}</div>
+                                <div class="text-muted small">{{ provider.user.email }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if provider.total_ratings > 0 %}
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">{{ "%.1f"|format(provider.average_rating) }}</span>
+                                    <div class="rating">
+                                        {% for i in range(5) %}
+                                            {% if i < provider.average_rating %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-muted"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">({{ provider.total_ratings }} avis)</small>
+                            {% else %}
+                                <span class="text-muted">Aucune note</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                {% if provider.is_verified %}
+                                    <span class="badge bg-success">Vérifié</span>
+                                {% else %}
+                                    <span class="badge bg-warning">En attente</span>
+                                {% endif %}
+                                {% if provider.is_premium %}
+                                    <span class="badge bg-warning">Premium</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ provider.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('backoffice.provider_detail', id=provider.id) }}" 
+                                   class="btn btn-outline-primary" title="Voir détails">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if not provider.is_verified %}
+                                <form method="POST" action="{{ url_for('backoffice.verify_provider', id=provider.id) }}" 
+                                      style="display: inline;">
+                                    <button type="submit" class="btn btn-outline-success" 
+                                            title="Vérifier"
+                                            onclick="return confirm('Vérifier ce prestataire ?')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if providers.pages > 1 %}
+        <nav aria-label="Pagination">
+            <ul class="pagination justify-content-center">
+                {% if providers.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('backoffice.providers', page=providers.prev_num, **request.args) }}">
+                        Précédent
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in providers.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != providers.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('backoffice.providers', page=page_num, **request.args) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">…</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if providers.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('backoffice.providers', page=providers.next_num, **request.args) }}">
+                        Suivant
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,511 @@
+/* ================================ */
+/* app/static/css/style.css */
+/* ================================ */
+
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+}
+
+/* ================================ */
+/* LAYOUT GÉNÉRAL */
+/* ================================ */
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: var(--dark-color);
+}
+
+.main-content {
+    min-height: calc(100vh - 200px);
+}
+
+/* ================================ */
+/* NAVIGATION */
+/* ================================ */
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.navbar-nav .nav-link {
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ================================ */
+/* HERO SECTION */
+/* ================================ */
+
+.hero-section {
+    background: var(--gradient-primary);
+    min-height: 80vh;
+}
+
+.hero-section .display-4 {
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.hero-section .lead {
+    font-size: 1.25rem;
+    font-weight: 400;
+}
+
+.min-vh-50 {
+    min-height: 50vh;
+}
+
+/* ================================ */
+/* CARDS ET COMPOSANTS */
+/* ================================ */
+
+.card {
+    border: none;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+
+.feature-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-3px);
+}
+
+/* ================================ */
+/* PRESTATAIRES */
+/* ================================ */
+
+.provider-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.provider-avatar {
+    width: 60px;
+    height: 60px;
+    background: var(--light-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.provider-avatar-large {
+    width: 80px;
+    height: 80px;
+    background: var(--light-color);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ribbon {
+    position: absolute;
+    top: 15px;
+    right: -30px;
+    padding: 5px 40px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transform: rotate(45deg);
+    z-index: 10;
+}
+
+.ribbon-premium {
+    background: var(--warning-color);
+    color: var(--dark-color);
+}
+
+.rating {
+    display: flex;
+    gap: 2px;
+}
+
+.rating i {
+    font-size: 0.9rem;
+}
+
+/* ================================ */
+/* ÉVÉNEMENTS */
+/* ================================ */
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--primary-color);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: var(--shadow-sm);
+}
+
+.timeline-content {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ================================ */
+/* NAVIGATION PAR ONGLETS */
+/* ================================ */
+
+.nav-tabs {
+    border-bottom: 2px solid var(--light-color);
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: var(--secondary-color);
+    font-weight: 500;
+    padding: 12px 20px;
+    margin-right: 5px;
+    border-radius: 8px 8px 0 0;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--primary-color);
+    background: var(--light-color);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    background: white;
+    border-bottom: 2px solid var(--primary-color);
+    font-weight: 600;
+}
+
+.nav-tabs .nav-link .badge {
+    font-size: 0.7rem;
+}
+
+/* ================================ */
+/* FORMULAIRES */
+/* ================================ */
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #e0e6ed;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--dark-color);
+}
+
+/* ================================ */
+/* BOUTONS */
+/* ================================ */
+
+.btn {
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-lg {
+    padding: 12px 28px;
+    font-size: 1.1rem;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    box-shadow: 0 4px 14px 0 rgba(13, 110, 253, 0.3);
+}
+
+.btn-primary:hover {
+    background: #0b5ed7;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px 0 rgba(13, 110, 253, 0.4);
+}
+
+.btn-warning {
+    background: var(--warning-color);
+    color: var(--dark-color);
+    box-shadow: 0 4px 14px 0 rgba(255, 193, 7, 0.3);
+}
+
+.btn-warning:hover {
+    background: #e0a800;
+    color: var(--dark-color);
+    transform: translateY(-1px);
+}
+
+/* ================================ */
+/* BADGES */
+/* ================================ */
+
+.badge {
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+/* ================================ */
+/* PAGINATION */
+/* ================================ */
+
+.pagination .page-link {
+    border: none;
+    color: var(--secondary-color);
+    font-weight: 500;
+    padding: 10px 16px;
+    margin: 0 2px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background: var(--light-color);
+    color: var(--primary-color);
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ================================ */
+/* TABLES */
+/* ================================ */
+
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table thead th {
+    border-bottom: 2px solid var(--light-color);
+    font-weight: 600;
+    color: var(--dark-color);
+    background: var(--light-color);
+}
+
+.table tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background: rgba(13, 110, 253, 0.05);
+}
+
+/* ================================ */
+/* MODALS */
+/* ================================ */
+
+.modal-content {
+    border: none;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--light-color);
+    padding: 24px 24px 16px;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--light-color);
+    padding: 16px 24px 24px;
+}
+
+/* ================================ */
+/* ANIMATIONS */
+/* ================================ */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.8s;
+}
+
+.animate__fadeInUp {
+    animation-name: fadeInUp;
+}
+
+/* ================================ */
+/* UTILITAIRES */
+/* ================================ */
+
+.bg-gradient {
+    background: var(--gradient-primary) !important;
+}
+
+.text-gradient {
+    background: var(--gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+.border-radius-lg {
+    border-radius: 16px !important;
+}
+
+/* ================================ */
+/* RESPONSIVE */
+/* ================================ */
+
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 60vh;
+        text-align: center;
+    }
+    
+    .hero-section .display-4 {
+        font-size: 2rem;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 8px 12px;
+        font-size: 0.875rem;
+    }
+    
+    .provider-avatar-large {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .timeline {
+        padding-left: 20px;
+    }
+    
+    .timeline-marker {
+        left: -17px;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .card-body {
+        padding: 16px;
+    }
+    
+    .btn-lg {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+}
+
+/* ================================ */
+/* DARK MODE (pour plus tard) */
+/* ================================ */
+
+@media (prefers-color-scheme: dark) {
+    /* Variables pour le mode sombre à implémenter */
+}
+
+/* ================================ */
+/* PRINT STYLES */
+/* ================================ */
+
+@media print {
+    .navbar,
+    .btn,
+    .modal,
+    .pagination {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .timeline::before {
+        background: #000;
+    }
+    
+    .timeline-marker {
+        background: #000;
+    }
+}

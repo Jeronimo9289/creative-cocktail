@@ -1,0 +1,17 @@
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
+Flask-Login==0.6.3
+Flask-Admin==1.6.1
+Flask-WTF==1.1.1
+Flask-Mail==0.9.1
+Flask-Migrate==4.0.5
+WTForms==3.0.1
+PyMySQL==1.1.0
+Werkzeug==2.3.7
+Jinja2==3.1.2
+python-dotenv==1.0.0
+Pillow==10.0.1
+email-validator==2.0.0
+python-dateutil==2.8.2
+celery==5.3.1
+redis==4.6.0

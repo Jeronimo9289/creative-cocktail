@@ -1,0 +1,595 @@
+<!-- ================================ -->
+<!-- app/templates/frontend/dashboard.html -->
+<!-- ================================ -->
+
+{% extends "base.html" %}
+{% set title = "Tableau de bord" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête du dashboard -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 mb-0">Tableau de bord</h1>
+                    <p class="text-muted">Bonjour {{ current_user.get_full_name() or current_user.username }} !</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('frontend.create_event') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Nouvel événement
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h3 class="mb-0">{{ stats.total_events }}</h3>
+                            <p class="mb-0">Événements totaux</p>
+                        </div>
+                        <i class="fas fa-calendar-alt fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h3 class="mb-0">{{ stats.active_events }}</h3>
+                            <p class="mb-0">En cours</p>
+                        </div>
+                        <i class="fas fa-play-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h3 class="mb-0">{{ stats.completed_events }}</h3>
+                            <p class="mb-0">Terminés</p>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h3 class="mb-0">{{ "%.0f"|format(stats.total_budget) }}€</h3>
+                            <p class="mb-0">Budget total</p>
+                        </div>
+                        <i class="fas fa-euro-sign fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Événements récents -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Mes événements</h5>
+                    <a href="{{ url_for('frontend.events') }}" class="btn btn-outline-primary btn-sm">
+                        Voir tout
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if events %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Événement</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                    <th>Budget</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in events[:5] %}
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong>{{ event.title }}</strong>
+                                            {% if event.description %}
+                                            <br><small class="text-muted">{{ event.description[:50] }}...</small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'primary' if event.event_type.value == 'professionnel' else 'info' }}">
+                                            {{ event.event_type.value | title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if event.start_date %}
+                                        {{ event.start_date.strftime('%d/%m/%Y') }}
+                                        {% else %}
+                                        <span class="text-muted">Non définie</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if event.status.value == 'termine' else 'primary' }}">
+                                            {{ event.status.value | replace('_', ' ') | title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if event.total_budget %}
+                                        {{ "%.0f"|format(event.total_budget) }}€
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ url_for('frontend.event_detail', id=event.id) }}" 
+                                               class="btn btn-outline-primary" title="Voir">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('frontend.edit_event', id=event.id) }}" 
+                                               class="btn btn-outline-secondary" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-plus fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucun événement</h5>
+                        <p class="text-muted">Créez votre premier événement pour commencer</p>
+                        <a href="{{ url_for('frontend.create_event') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Créer un événement
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- ================================ -->
+<!-- app/templates/frontend/events/create.html -->
+<!-- ================================ -->
+
+{% extends "base.html" %}
+{% set title = "Créer un événement" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-plus me-2"></i>Créer un nouvel événement</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form.title.label(class="form-label") }}
+                                {{ form.title(class="form-control") }}
+                                {% if form.title.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.title.errors %}<div>{{ error }}</div>{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                {{ form.event_type.label(class="form-label") }}
+                                {{ form.event_type(class="form-select") }}
+                                {% if form.event_type.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.event_type.errors %}<div>{{ error }}</div>{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows="4") }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.start_date.label(class="form-label") }}
+                                {{ form.start_date(class="form-control", type="datetime-local") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.end_date.label(class="form-label") }}
+                                {{ form.end_date(class="form-control", type="datetime-local") }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.expected_participants.label(class="form-label") }}
+                                {{ form.expected_participants(class="form-control") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.total_budget.label(class="form-label") }}
+                                <div class="input-group">
+                                    {{ form.total_budget(class="form-control") }}
+                                    <span class="input-group-text">€</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('frontend.dashboard') }}" class="btn btn-secondary">
+                                Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Créer l'événement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- ================================ -->
+<!-- app/templates/frontend/events/detail.html -->
+<!-- ================================ -->
+
+{% extends "base.html" %}
+{% set title = event.title %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- En-tête de l'événement -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 class="h2 mb-2">{{ event.title }}</h1>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <span class="badge bg-{{ 'primary' if event.event_type.value == 'professionnel' else 'info' }} fs-6">
+                            {{ event.event_type.value | title }}
+                        </span>
+                        <span class="badge bg-{{ 'success' if event.status.value == 'termine' else 'primary' }} fs-6">
+                            {{ event.status.value | replace('_', ' ') | title }}
+                        </span>
+                        {% if event.start_date %}
+                        <span class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>{{ event.start_date.strftime('%d/%m/%Y à %H:%M') }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% if event.description %}
+                    <p class="text-muted">{{ event.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('frontend.edit_event', id=event.id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit me-2"></i>Modifier
+                    </a>
+                    <button class="btn btn-outline-success" onclick="printEvent()">
+                        <i class="fas fa-print me-2"></i>Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations générales -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                    <h4 class="mb-0">{{ event.expected_participants or '?' }}</h4>
+                    <small class="text-muted">Participants</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <i class="fas fa-euro-sign fa-2x text-success mb-2"></i>
+                    <h4 class="mb-0">{{ "%.0f"|format(event.total_budget) if event.total_budget else '?' }}€</h4>
+                    <small class="text-muted">Budget</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <i class="fas fa-tasks fa-2x text-info mb-2"></i>
+                    <h4 class="mb-0">{{ "%.0f"|format(event.get_progress_percentage()) }}%</h4>
+                    <small class="text-muted">Avancement</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                    <h4 class="mb-0">{{ tasks|length }}</h4>
+                    <small class="text-muted">Tâches</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation par onglets -->
+    <div class="row">
+        <div class="col-12">
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-overview-tab" data-bs-toggle="tab" data-bs-target="#nav-overview">
+                        <i class="fas fa-eye me-2"></i>Vue d'ensemble
+                    </button>
+                    <button class="nav-link" id="nav-venue-tab" data-bs-toggle="tab" data-bs-target="#nav-venue">
+                        <i class="fas fa-map-marker-alt me-2"></i>Lieux <span class="badge bg-primary ms-1">{{ venues|length }}</span>
+                    </button>
+                    <button class="nav-link" id="nav-decoration-tab" data-bs-toggle="tab" data-bs-target="#nav-decoration">
+                        <i class="fas fa-palette me-2"></i>Décoration <span class="badge bg-danger ms-1">{{ decorations|length }}</span>
+                    </button>
+                    <button class="nav-link" id="nav-transport-tab" data-bs-toggle="tab" data-bs-target="#nav-transport">
+                        <i class="fas fa-bus me-2"></i>Transport <span class="badge bg-warning ms-1">{{ transports|length }}</span>
+                    </button>
+                    <button class="nav-link" id="nav-catering-tab" data-bs-toggle="tab" data-bs-target="#nav-catering">
+                        <i class="fas fa-utensils me-2"></i>Restauration <span class="badge bg-success ms-1">{{ catering|length }}</span>
+                    </button>
+                    <button class="nav-link" id="nav-animation-tab" data-bs-toggle="tab" data-bs-target="#nav-animation">
+                        <i class="fas fa-star me-2"></i>Animation <span class="badge bg-info ms-1">{{ activities|length }}</span>
+                    </button>
+                    <button class="nav-link" id="nav-communication-tab" data-bs-toggle="tab" data-bs-target="#nav-communication">
+                        <i class="fas fa-bullhorn me-2"></i>Communication <span class="badge bg-secondary ms-1">{{ communications|length }}</span>
+                    </button>
+                    <button class="nav-link" id="nav-technical-tab" data-bs-toggle="tab" data-bs-target="#nav-technical">
+                        <i class="fas fa-microphone me-2"></i>Technique <span class="badge bg-dark ms-1">{{ technical|length }}</span>
+                    </button>
+                    <button class="nav-link" id="nav-participants-tab" data-bs-toggle="tab" data-bs-target="#nav-participants">
+                        <i class="fas fa-users me-2"></i>Participants <span class="badge bg-primary ms-1">{{ participants|length }}</span>
+                    </button>
+                </div>
+            </nav>
+            
+            <div class="tab-content border border-top-0 p-4" id="nav-tabContent">
+                <!-- Vue d'ensemble -->
+                <div class="tab-pane fade show active" id="nav-overview">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5><i class="fas fa-calendar-check me-2"></i>Planning général</h5>
+                            <div class="timeline">
+                                {% if venues %}
+                                    {% for venue in venues %}
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker bg-primary"></div>
+                                        <div class="timeline-content">
+                                            <h6 class="mb-1">{{ venue.custom_name or 'Lieu' }}</h6>
+                                            <small class="text-muted">
+                                                {% if venue.start_datetime %}{{ venue.start_datetime.strftime('%d/%m/%Y %H:%M') }}{% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
+                                <!-- Autres éléments du planning... -->
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h5><i class="fas fa-chart-pie me-2"></i>Répartition du budget</h5>
+                            <canvas id="budgetChart" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Onglet Lieux -->
+                <div class="tab-pane fade" id="nav-venue">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Lieux</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addVenueModal">
+                            <i class="fas fa-plus me-2"></i>Ajouter un lieu
+                        </button>
+                    </div>
+                    
+                    {% if venues %}
+                    <div class="row">
+                        {% for venue in venues %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ venue.custom_name or venue.venue.name if venue.venue else 'Lieu personnalisé' }}</h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-bullseye me-1"></i>{{ venue.purpose or 'Non défini' }}
+                                        </small>
+                                    </p>
+                                    {% if venue.start_datetime %}
+                                    <p class="card-text">
+                                        <small>
+                                            <i class="fas fa-clock me-1"></i>{{ venue.start_datetime.strftime('%d/%m/%Y %H:%M') }}
+                                        </small>
+                                    </p>
+                                    {% endif %}
+                                    {% if venue.cost %}
+                                    <p class="card-text">
+                                        <span class="badge bg-success">{{ "%.0f"|format(venue.cost) }}€</span>
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">Aucun lieu défini</h6>
+                        <p class="text-muted">Ajoutez vos lieux d'événement</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Autres onglets similaires... -->
+                <div class="tab-pane fade" id="nav-participants">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Participants</h5>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm me-2">
+                                <i class="fas fa-download me-2"></i>Exporter
+                            </button>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addParticipantModal">
+                                <i class="fas fa-user-plus me-2"></i>Ajouter
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {% if participants %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Statut</th>
+                                    <th>Groupe</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for participant in participants %}
+                                <tr>
+                                    <td>{{ participant.get_full_name() }}</td>
+                                    <td>{{ participant.email }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if participant.status == 'confirmed' else 'warning' }}">
+                                            {{ participant.status | title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ participant.group_name or '-' }}</td>
+                                    <td>
+                                        <button class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">Aucun participant</h6>
+                        <p class="text-muted">Ajoutez vos invités et participants</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals pour ajouter des éléments -->
+<div class="modal fade" id="addVenueModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajouter un lieu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Nom du lieu</label>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fonction</label>
+                        <select class="form-select">
+                            <option>Dormir</option>
+                            <option>Manger</option>
+                            <option>Travailler</option>
+                            <option>S'amuser</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label">Date/heure début</label>
+                            <input type="datetime-local" class="form-control">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Date/heure fin</label>
+                            <input type="datetime-local" class="form-control">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary">Ajouter</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Graphique de répartition du budget
+const ctx = document.getElementById('budgetChart');
+if (ctx) {
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Lieux', 'Restauration', 'Transport', 'Animation', 'Technique', 'Autres'],
+            datasets: [{
+                data: [30, 25, 15, 20, 5, 5],
+                backgroundColor: [
+                    '#0d6efd',
+                    '#198754', 
+                    '#ffc107',
+                    '#17a2b8',
+                    '#6c757d',
+                    '#dc3545'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function printEvent() {
+    window.print();
+}
+</script>
+{% endblock %}

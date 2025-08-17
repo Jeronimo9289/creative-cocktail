@@ -1,0 +1,501 @@
+<!-- ================================ -->
+<!-- app/templates/base.html -->
+<!-- ================================ -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if title %}{{ title }} - {% endif %}Creative Cocktail</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('frontend.index') }}">
+                <i class="fas fa-glass-cheers me-2"></i>Creative Cocktail
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('frontend.index') }}">
+                            <i class="fas fa-home me-1"></i>Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('frontend.venues') }}">
+                            <i class="fas fa-map-marker-alt me-1"></i>Lieux
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('frontend.providers') }}">
+                            <i class="fas fa-users me-1"></i>Prestataires
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('frontend.events') }}">
+                            <i class="fas fa-calendar-alt me-1"></i>Mes Événements
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>{{ current_user.get_full_name() or current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('frontend.dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+                            </a></li>
+                            <li><a class="dropdown-item" href="#">
+                                <i class="fas fa-user-edit me-2"></i>Mon profil
+                            </a></li>
+                            {% if current_user.is_admin %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('backoffice.dashboard') }}">
+                                <i class="fas fa-cogs me-2"></i>Administration
+                            </a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('frontend.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('frontend.login') }}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Connexion
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('frontend.register') }}">
+                            <i class="fas fa-user-plus me-1"></i>Inscription
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-glass-cheers me-2"></i>Creative Cocktail</h5>
+                    <p>Votre plateforme d'organisation d'événements professionnels et particuliers.</p>
+                </div>
+                <div class="col-md-2">
+                    <h6>Liens utiles</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light">À propos</a></li>
+                        <li><a href="#" class="text-light">Contact</a></li>
+                        <li><a href="#" class="text-light">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h6>Services</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('frontend.venues') }}" class="text-light">Lieux</a></li>
+                        <li><a href="{{ url_for('frontend.providers') }}" class="text-light">Prestataires</a></li>
+                        <li><a href="#" class="text-light">Conseils</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h6>Support</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-light">Centre d'aide</a></li>
+                        <li><a href="#" class="text-light">Chat en ligne</a></li>
+                        <li><a href="#" class="text-light">Tutoriels</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h6>Suivez-nous</h6>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="text-light"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 Creative Cocktail. Tous droits réservés.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="#" class="text-light me-3">Mentions légales</a>
+                    <a href="#" class="text-light">Politique de confidentialité</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+
+<!-- ================================ -->
+<!-- app/templates/frontend/index.html -->
+<!-- ================================ -->
+
+{% extends "base.html" %}
+{% set title = "Accueil" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient text-white py-5">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Organisez vos événements <span class="text-warning">parfaits</span>
+                </h1>
+                <p class="lead mb-4">
+                    La plateforme complète pour organiser tous vos événements professionnels et particuliers.
+                    6 questions, 8 onglets, 1 solution !
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('frontend.register') }}" class="btn btn-warning btn-lg">
+                        <i class="fas fa-rocket me-2"></i>Commencer gratuitement
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('frontend.create_event') }}" class="btn btn-warning btn-lg">
+                        <i class="fas fa-plus me-2"></i>Créer un événement
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('frontend.providers') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-search me-2"></i>Trouver un prestataire
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="{{ url_for('static', filename='images/hero-event.svg') }}" 
+                     alt="Organisation d'événements" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="display-5 fw-bold">6 Questions, 8 Onglets, 1 Solution</h2>
+                <p class="lead text-muted">Notre méthode éprouvée pour organiser tous vos événements</p>
+            </div>
+        </div>
+        
+        <!-- 6 Questions -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h3 class="text-center mb-4"><i class="fas fa-question-circle text-primary me-2"></i>Les 6 Questions Essentielles</h3>
+            </div>
+            <div class="col-md-2 text-center mb-3">
+                <div class="feature-card p-3">
+                    <i class="fas fa-map-marker-alt fa-2x text-primary mb-2"></i>
+                    <h6>Dans quel lieu ?</h6>
+                </div>
+            </div>
+            <div class="col-md-2 text-center mb-3">
+                <div class="feature-card p-3">
+                    <i class="fas fa-calendar fa-2x text-success mb-2"></i>
+                    <h6>Quand ?</h6>
+                </div>
+            </div>
+            <div class="col-md-2 text-center mb-3">
+                <div class="feature-card p-3">
+                    <i class="fas fa-users fa-2x text-info mb-2"></i>
+                    <h6>Avec qui ?</h6>
+                </div>
+            </div>
+            <div class="col-md-2 text-center mb-3">
+                <div class="feature-card p-3">
+                    <i class="fas fa-euro-sign fa-2x text-warning mb-2"></i>
+                    <h6>Quel budget ?</h6>
+                </div>
+            </div>
+            <div class="col-md-2 text-center mb-3">
+                <div class="feature-card p-3">
+                    <i class="fas fa-bullseye fa-2x text-danger mb-2"></i>
+                    <h6>Pour quoi ?</h6>
+                </div>
+            </div>
+            <div class="col-md-2 text-center mb-3">
+                <div class="feature-card p-3">
+                    <i class="fas fa-cog fa-2x text-secondary mb-2"></i>
+                    <h6>Comment ?</h6>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8 Onglets -->
+        <div class="row">
+            <div class="col-12">
+                <h3 class="text-center mb-4"><i class="fas fa-folder-open text-primary me-2"></i>Les 8 Onglets d'Organisation</h3>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 border-primary">
+                    <div class="card-body text-center">
+                        <i class="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Lieu</h5>
+                        <p class="card-text">Trouvez et gérez vos lieux d'événements</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 border-danger">
+                    <div class="card-body text-center">
+                        <i class="fas fa-palette fa-3x text-danger mb-3"></i>
+                        <h5 class="card-title">Décoration</h5>
+                        <p class="card-text">Mobilier et décoration pour vos événements</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 border-warning">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bus fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Transport</h5>
+                        <p class="card-text">Solutions de transport pour vos invités</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 border-success">
+                    <div class="card-body text-center">
+                        <i class="fas fa-utensils fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Restauration</h5>
+                        <p class="card-text">Traiteurs et services de restauration</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 border-info">
+                    <div class="card-body text-center">
+                        <i class="fas fa-star fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Animation</h5>
+                        <p class="card-text">Animations et spectacles</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 border-danger">
+                    <div class="card-body text-center">
+                        <i class="fas fa-running fa-3x text-danger mb-3"></i>
+                        <h5 class="card-title">Activité</h5>
+                        <p class="card-text">Activités team building et loisirs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 border-secondary">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bullhorn fa-3x text-secondary mb-3"></i>
+                        <h5 class="card-title">Communication</h5>
+                        <p class="card-text">Supports de communication</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 border-dark">
+                    <div class="card-body text-center">
+                        <i class="fas fa-microphone fa-3x text-dark mb-3"></i>
+                        <h5 class="card-title">Technique</h5>
+                        <p class="card-text">Matériel audiovisuel et technique</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Events (for authenticated users) -->
+{% if current_user.is_authenticated and recent_events %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="mb-4"><i class="fas fa-clock me-2"></i>Vos événements récents</h3>
+            </div>
+        </div>
+        <div class="row">
+            {% for event in recent_events %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                {% if event.start_date %}{{ event.start_date.strftime('%d/%m/%Y') }}{% endif %}
+                            </small>
+                        </p>
+                        <span class="badge bg-{{ 'success' if event.status.value == 'completed' else 'primary' }}">
+                            {{ event.status.value | title }}
+                        </span>
+                        <div class="mt-3">
+                            <a href="{{ url_for('frontend.event_detail', id=event.id) }}" class="btn btn-outline-primary btn-sm">
+                                Voir détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center">
+            <a href="{{ url_for('frontend.events') }}" class="btn btn-primary">
+                Voir tous mes événements
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Providers -->
+{% if featured_providers %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h3><i class="fas fa-crown text-warning me-2"></i>Prestataires Premium</h3>
+                <p class="lead text-muted">Découvrez nos partenaires de confiance</p>
+            </div>
+        </div>
+        <div class="row">
+            {% for provider in featured_providers %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-grow-1">
+                                <h5 class="card-title">{{ provider.company_name }}</h5>
+                                <span class="badge bg-info mb-2">{{ provider.category.value | title }}</span>
+                                <div class="rating mb-2">
+                                    {% for i in range(5) %}
+                                        {% if i < provider.average_rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <small class="text-muted">({{ provider.total_ratings }})</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-warning"><i class="fas fa-crown"></i></span>
+                        </div>
+                        <p class="card-text">{{ provider.description[:100] }}...</p>
+                        <a href="{{ url_for('frontend.provider_detail', id=provider.id) }}" class="btn btn-outline-primary btn-sm">
+                            Voir profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center">
+            <a href="{{ url_for('frontend.providers') }}" class="btn btn-primary">
+                Voir tous les prestataires
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="mb-4">Prêt à organiser votre prochain événement ?</h2>
+                <p class="lead mb-4">
+                    Rejoignez des milliers d'organisateurs qui font confiance à Creative Cocktail
+                </p>
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('frontend.register') }}" class="btn btn-warning btn-lg me-3">
+                    <i class="fas fa-user-plus me-2"></i>Créer mon compte
+                </a>
+                {% else %}
+                <a href="{{ url_for('frontend.create_event') }}" class="btn btn-warning btn-lg me-3">
+                    <i class="fas fa-plus me-2"></i>Créer un événement
+                </a>
+                {% endif %}
+                <a href="{{ url_for('frontend.providers') }}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-search me-2"></i>Explorer les prestataires
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Animation des cartes au scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationDelay = Math.random() * 0.5 + 's';
+                entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+            }
+        });
+    });
+    
+    cards.forEach(card => {
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

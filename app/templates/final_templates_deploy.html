@@ -1,0 +1,877 @@
+<!-- ================================ -->
+<!-- app/templates/frontend/auth/login.html -->
+<!-- ================================ -->
+
+{% extends "base.html" %}
+{% set title = "Connexion" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-glass-cheers fa-3x text-primary mb-3"></i>
+                        <h2 class="h4 text-gray-900">Connexion</h2>
+                        <p class="text-muted">Connectez-vous à votre compte Creative Cocktail</p>
+                    </div>
+                    
+                    <form method="POST" class="user">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="form-group mb-3">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control", placeholder="Votre nom d'utilisateur") }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.username.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.password(class="form-control", placeholder="Votre mot de passe", id="password") }}
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                {{ form.remember_me(class="form-check-input") }}
+                                {{ form.remember_me.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <a class="small" href="#">Mot de passe oublié ?</a>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <p class="text-muted">Pas encore de compte ?</p>
+                        <a href="{{ url_for('frontend.register') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-user-plus me-2"></i>Créer un compte
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}
+
+<!-- ================================ -->
+<!-- app/templates/frontend/auth/register.html -->
+<!-- ================================ -->
+
+{% extends "base.html" %}
+{% set title = "Inscription" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-glass-cheers fa-3x text-primary mb-3"></i>
+                        <h2 class="h4 text-gray-900">Créer un compte</h2>
+                        <p class="text-muted">Rejoignez Creative Cocktail et organisez vos événements parfaits</p>
+                    </div>
+                    
+                    <form method="POST" class="user">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.first_name.label(class="form-label") }}
+                                {{ form.first_name(class="form-control", placeholder="Votre prénom") }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.first_name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.last_name.label(class="form-label") }}
+                                {{ form.last_name(class="form-control", placeholder="Votre nom") }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.last_name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control", placeholder="Nom d'utilisateur unique") }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.username.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control", placeholder="votre.email@exemple.com") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            {{ form.user_type.label(class="form-label") }}
+                            {{ form.user_type(class="form-select") }}
+                            <div class="form-text">
+                                <small><strong>Client :</strong> Organisez vos événements et trouvez des prestataires</small><br>
+                                <small><strong>Prestataire :</strong> Proposez vos services et recevez des demandes de devis</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.password.label(class="form-label") }}
+                                <div class="input-group">
+                                    {{ form.password(class="form-control", placeholder="Mot de passe", id="password") }}
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password', 'toggleIcon1')">
+                                        <i class="fas fa-eye" id="toggleIcon1"></i>
+                                    </button>
+                                </div>
+                                {% if form.password.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.password.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    <small>Au moins 8 caractères avec majuscules, minuscules, chiffres et caractères spéciaux</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.password2.label(class="form-label") }}
+                                <div class="input-group">
+                                    {{ form.password2(class="form-control", placeholder="Confirmer le mot de passe", id="password2") }}
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password2', 'toggleIcon2')">
+                                        <i class="fas fa-eye" id="toggleIcon2"></i>
+                                    </button>
+                                </div>
+                                {% if form.password2.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.password2.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    J'accepte les <a href="#" target="_blank">conditions d'utilisation</a> et la <a href="#" target="_blank">politique de confidentialité</a>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block w-100">
+                            <i class="fas fa-user-plus me-2"></i>Créer mon compte
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="text-muted">Déjà un compte ?</p>
+                        <a href="{{ url_for('frontend.login') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePassword(inputId, iconId) {
+    const passwordInput = document.getElementById(inputId);
+    const toggleIcon = document.getElementById(iconId);
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+
+// Validation en temps réel du mot de passe
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const requirements = [
+        { regex: /.{8,}/, text: 'Au moins 8 caractères' },
+        { regex: /[A-Z]/, text: 'Une majuscule' },
+        { regex: /[a-z]/, text: 'Une minuscule' },
+        { regex: /\d/, text: 'Un chiffre' },
+        { regex: /[!@#$%^&*(),.?":{}|<>]/, text: 'Un caractère spécial' }
+    ];
+    
+    // Vous pourriez ajouter ici un indicateur visuel de force du mot de passe
+});
+</script>
+{% endblock %}
+
+<!-- ================================ -->
+<!-- app/templates/emails/base.html -->
+<!-- ================================ -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Creative Cocktail{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            background: white;
+            padding: 30px 20px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 8px 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #0d6efd;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .btn:hover {
+            background: #0b5ed7;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="header">
+            <div class="logo">🍸 Creative Cocktail</div>
+            <div>Votre plateforme d'organisation d'événements</div>
+        </div>
+        
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        
+        <div class="footer">
+            <p>Cet email a été envoyé par Creative Cocktail</p>
+            <p>
+                <a href="{{ unsubscribe_url }}" style="color: #666;">Se désabonner</a> | 
+                <a href="https://creativecocktail.com" style="color: #666;">Visiter le site</a>
+            </p>
+            <p>&copy; 2024 Creative Cocktail. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>
+
+<!-- ================================ -->
+<!-- app/templates/emails/notification.html -->
+<!-- ================================ -->
+
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h2>{{ notification.title }}</h2>
+
+<p>Bonjour {{ user.get_full_name() or user.username }},</p>
+
+<p>{{ notification.message }}</p>
+
+{% if notification.link_url %}
+<div style="text-align: center; margin: 25px 0;">
+    <a href="{{ base_url }}{{ notification.link_url }}" class="btn">
+        Voir les détails
+    </a>
+</div>
+{% endif %}
+
+{% if notification.type.value == 'quote_received' %}
+<div class="alert alert-info">
+    <strong>Nouveau devis reçu !</strong><br>
+    Consultez votre tableau de bord pour examiner cette proposition et y répondre.
+</div>
+{% elif notification.type.value == 'provider_verified' %}
+<div class="alert alert-info">
+    <strong>Profil vérifié !</strong><br>
+    Votre profil prestataire est maintenant visible par tous les utilisateurs de la plateforme.
+</div>
+{% endif %}
+
+<p>
+    Cordialement,<br>
+    L'équipe Creative Cocktail
+</p>
+{% endblock %}
+
+<!-- ================================ -->
+<!-- scripts/deploy.sh -->
+<!-- ================================ -->
+
+#!/bin/bash
+
+# Script de déploiement pour Creative Cocktail
+# Usage: ./scripts/deploy.sh [environment]
+
+set -e  # Arrêter en cas d'erreur
+
+ENVIRONMENT=${1:-production}
+PROJECT_DIR="/opt/creative-cocktail"
+BACKUP_DIR="/opt/backups/creative-cocktail"
+LOG_FILE="/var/log/creative-cocktail/deploy.log"
+
+echo "=== Déploiement Creative Cocktail - $(date) ===" | tee -a $LOG_FILE
+
+# Fonction de log
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a $LOG_FILE
+}
+
+# Fonction de nettoyage en cas d'erreur
+cleanup() {
+    log "Erreur détectée, nettoyage en cours..."
+    if [ -f "$BACKUP_DIR/docker-compose.yml.backup" ]; then
+        log "Restauration de la configuration précédente..."
+        cp "$BACKUP_DIR/docker-compose.yml.backup" "$PROJECT_DIR/docker-compose.yml"
+        cd $PROJECT_DIR && docker-compose up -d
+    fi
+    exit 1
+}
+
+trap cleanup ERR
+
+log "Début du déploiement pour l'environnement: $ENVIRONMENT"
+
+# Vérifications préalables
+log "Vérification des prérequis..."
+
+if ! command -v docker &> /dev/null; then
+    log "ERREUR: Docker n'est pas installé"
+    exit 1
+fi
+
+if ! command -v docker-compose &> /dev/null; then
+    log "ERREUR: Docker Compose n'est pas installé"
+    exit 1
+fi
+
+# Créer les répertoires nécessaires
+mkdir -p $BACKUP_DIR
+mkdir -p /var/log/creative-cocktail
+
+# Sauvegarde de la base de données
+log "Sauvegarde de la base de données..."
+cd $PROJECT_DIR
+docker-compose exec -T db mysqldump -u creative_user -pcreative_password creative_cocktail > "$BACKUP_DIR/db_backup_$(date +%Y%m%d_%H%M%S).sql"
+
+# Sauvegarde de la configuration actuelle
+log "Sauvegarde de la configuration..."
+cp docker-compose.yml "$BACKUP_DIR/docker-compose.yml.backup"
+cp .env "$BACKUP_DIR/.env.backup"
+
+# Récupérer les derniers changements
+log "Récupération du code source..."
+git fetch origin
+git checkout main
+git pull origin main
+
+# Construire les nouvelles images
+log "Construction des images Docker..."
+docker-compose build --no-cache
+
+# Arrêter les services
+log "Arrêt des services..."
+docker-compose down
+
+# Démarrer les nouveaux services
+log "Démarrage des nouveaux services..."
+docker-compose up -d
+
+# Attendre que les services soient prêts
+log "Attente du démarrage des services..."
+sleep 30
+
+# Vérifier la santé des services
+log "Vérification de la santé des services..."
+max_attempts=30
+attempt=1
+
+while [ $attempt -le $max_attempts ]; do
+    if curl -f http://localhost/health &> /dev/null; then
+        log "Services démarrés avec succès"
+        break
+    fi
+    
+    if [ $attempt -eq $max_attempts ]; then
+        log "ERREUR: Échec du démarrage des services après $max_attempts tentatives"
+        cleanup
+    fi
+    
+    log "Tentative $attempt/$max_attempts - En attente..."
+    sleep 10
+    ((attempt++))
+done
+
+# Appliquer les migrations de base de données
+log "Application des migrations..."
+docker-compose exec -T web flask db upgrade
+
+# Nettoyer les anciennes images
+log "Nettoyage des anciennes images..."
+docker system prune -f
+
+# Vérification finale
+log "Vérification finale..."
+if curl -f http://localhost/health; then
+    log "✅ Déploiement réussi!"
+    
+    # Notification optionnelle (Slack, email, etc.)
+    # curl -X POST -H 'Content-type: application/json' \
+    #     --data '{"text":"Creative Cocktail déployé avec succès"}' \
+    #     $SLACK_WEBHOOK_URL
+else
+    log "❌ Échec de la vérification finale"
+    cleanup
+fi
+
+log "=== Fin du déploiement - $(date) ==="
+
+# ================================
+# scripts/maintenance.sh
+# ================================
+
+#!/bin/bash
+
+# Script de maintenance pour Creative Cocktail
+# Usage: ./scripts/maintenance.sh [action]
+
+ACTION=${1:-help}
+PROJECT_DIR="/opt/creative-cocktail"
+LOG_FILE="/var/log/creative-cocktail/maintenance.log"
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a $LOG_FILE
+}
+
+case $ACTION in
+    "backup")
+        log "Début de la sauvegarde..."
+        cd $PROJECT_DIR
+        
+        # Sauvegarde base de données
+        docker-compose exec -T db mysqldump -u creative_user -pcreative_password creative_cocktail | gzip > "/opt/backups/creative-cocktail/db_$(date +%Y%m%d_%H%M%S).sql.gz"
+        
+        # Sauvegarde fichiers uploadés
+        tar -czf "/opt/backups/creative-cocktail/uploads_$(date +%Y%m%d_%H%M%S).tar.gz" app/static/uploads/
+        
+        # Nettoyer les sauvegardes anciennes (garder 30 jours)
+        find /opt/backups/creative-cocktail/ -name "*.sql.gz" -mtime +30 -delete
+        find /opt/backups/creative-cocktail/ -name "*.tar.gz" -mtime +30 -delete
+        
+        log "Sauvegarde terminée"
+        ;;
+        
+    "update")
+        log "Mise à jour du système..."
+        cd $PROJECT_DIR
+        
+        # Mise à jour du code
+        git pull origin main
+        
+        # Reconstruction des images
+        docker-compose build
+        
+        # Redémarrage des services
+        docker-compose restart
+        
+        # Application des migrations
+        docker-compose exec web flask db upgrade
+        
+        log "Mise à jour terminée"
+        ;;
+        
+    "logs")
+        log "Consultation des logs..."
+        cd $PROJECT_DIR
+        
+        echo "=== Logs de l'application ==="
+        docker-compose logs --tail=100 web
+        
+        echo -e "\n=== Logs de la base de données ==="
+        docker-compose logs --tail=50 db
+        
+        echo -e "\n=== Logs Nginx ==="
+        docker-compose logs --tail=50 nginx
+        ;;
+        
+    "cleanup")
+        log "Nettoyage du système..."
+        
+        # Nettoyer Docker
+        docker system prune -f
+        docker volume prune -f
+        
+        # Nettoyer les logs anciens
+        find /var/log/creative-cocktail/ -name "*.log" -mtime +30 -delete
+        
+        # Nettoyer les fichiers temporaires
+        find /tmp -name "creative_cocktail_*" -mtime +1 -delete
+        
+        log "Nettoyage terminé"
+        ;;
+        
+    "status")
+        log "Vérification du statut..."
+        cd $PROJECT_DIR
+        
+        echo "=== Statut des services ==="
+        docker-compose ps
+        
+        echo -e "\n=== Santé de l'application ==="
+        curl -s http://localhost/health | jq .
+        
+        echo -e "\n=== Utilisation des ressources ==="
+        docker stats --no-stream
+        
+        echo -e "\n=== Espace disque ==="
+        df -h
+        ;;
+        
+    "monitor")
+        log "Monitoring en temps réel..."
+        cd $PROJECT_DIR
+        
+        echo "Appuyez sur Ctrl+C pour arrêter le monitoring"
+        docker-compose logs -f
+        ;;
+        
+    "help"|*)
+        echo "Script de maintenance Creative Cocktail"
+        echo ""
+        echo "Usage: $0 [action]"
+        echo ""
+        echo "Actions disponibles:"
+        echo "  backup    - Sauvegarder la base de données et les fichiers"
+        echo "  update    - Mettre à jour l'application"
+        echo "  logs      - Afficher les logs récents"
+        echo "  cleanup   - Nettoyer le système"
+        echo "  status    - Vérifier le statut des services"
+        echo "  monitor   - Monitoring en temps réel"
+        echo "  help      - Afficher cette aide"
+        ;;
+esac
+
+# ================================
+# docker-compose.prod.yml
+# ================================
+
+version: '3.8'
+
+services:
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile.prod
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=mysql+pymysql://creative_user:${DB_PASSWORD}@db/creative_cocktail
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - MAIL_SERVER=${MAIL_SERVER}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./app/static/uploads:/app/app/static/uploads
+      - ./logs:/app/logs
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  db:
+    image: mariadb:10.11
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=creative_cocktail
+      - MYSQL_USER=creative_user
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./backups:/backups
+      - ./config/mysql.cnf:/etc/mysql/conf.d/custom.cnf
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  worker:
+    build: 
+      context: .
+      dockerfile: Dockerfile.prod
+    command: celery -A run.celery worker --loglevel=info --concurrency=4
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=mysql+pymysql://creative_user:${DB_PASSWORD}@db/creative_cocktail
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  beat:
+    build: 
+      context: .
+      dockerfile: Dockerfile.prod
+    command: celery -A run.celery beat --loglevel=info
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=mysql+pymysql://creative_user:${DB_PASSWORD}@db/creative_cocktail
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx.prod.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+      - ./app/static:/var/www/static
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - web
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # Monitoring avec Prometheus (optionnel)
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: unless-stopped
+    profiles: ["monitoring"]
+
+  # Grafana pour les tableaux de bord (optionnel)
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    restart: unless-stopped
+    profiles: ["monitoring"]
+
+volumes:
+  mariadb_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  default:
+    name: creative_cocktail_network
+
+# ================================
+# Dockerfile.prod
+# ================================
+
+FROM python:3.11-slim
+
+# Variables d'environnement pour la production
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Installer les dépendances système
+RUN apt-get update && apt-get install -y \
+    gcc \
+    default-libmysqlclient-dev \
+    pkg-config \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Créer un utilisateur non-root
+RUN useradd --create-home --shell /bin/bash app
+
+WORKDIR /app
+
+# Copier et installer les dépendances Python
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Installer Gunicorn pour la production
+RUN pip install gunicorn[gevent]==21.2.0
+
+# Copier le code de l'application
+COPY . .
+
+# Créer les répertoires nécessaires
+RUN mkdir -p logs uploads && \
+    chown -R app:app /app
+
+USER app
+
+# Port d'écoute
+EXPOSE 5000
+
+# Variables d'environnement
+ENV FLASK_APP=run.py
+ENV FLASK_ENV=production
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+# Commande de démarrage avec Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--worker-class", "gevent", "--worker-connections", "1000", "--timeout", "30", "--keep-alive", "2", "--max-requests", "1000", "--max-requests-jitter", "100", "run:app"]

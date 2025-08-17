@@ -1,0 +1,251 @@
+<!-- ================================ -->
+<!-- app/templates/backoffice/providers.html -->
+<!-- ================================ -->
+
+{% extends "backoffice/base.html" %}
+{% set title = "Gestion des prestataires" %}
+
+{% block content %}
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Gestion des prestataires</h1>
+</div>
+
+<!-- Statistiques rapides -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="h4 mb-0">{{ providers.query.filter_by(is_verified=True).count() }}</div>
+                        <div class="small">Vérifiés</div>
+                    </div>
+                    <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="h4 mb-0">{{ providers.query.filter_by(is_verified=False).count() }}</div>
+                        <div class="small">En attente</div>
+                    </div>
+                    <i class="fas fa-clock fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="h4 mb-0">{{ providers.query.filter_by(is_premium=True).count() }}</div>
+                        <div class="small">Premium</div>
+                    </div>
+                    <i class="fas fa-crown fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="h4 mb-0">{{ providers.total }}</div>
+                        <div class="small">Total</div>
+                    </div>
+                    <i class="fas fa-building fa-2x opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtres -->
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Statut</label>
+                <select name="status" class="form-select">
+                    <option value="">Tous</option>
+                    <option value="verified" {% if request.args.get('status') == 'verified' %}selected{% endif %}>Vérifiés</option>
+                    <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>En attente</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Catégorie</label>
+                <select name="category" class="form-select">
+                    <option value="">Toutes</option>
+                    <option value="lieu">Lieux</option>
+                    <option value="decoration_mobilier">Décoration/Mobilier</option>
+                    <option value="transport">Transport</option>
+                    <option value="restauration">Restauration</option>
+                    <option value="animation">Animation</option>
+                    <option value="activite">Activités</option>
+                    <option value="support_communication">Communication</option>
+                    <option value="technique">Technique</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Recherche</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Nom de l'entreprise..."
+                       value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-2"></i>Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table des prestataires -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            Prestataires ({{ providers.total }} au total)
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Entreprise</th>
+                        <th>Catégorie</th>
+                        <th>Contact</th>
+                        <th>Note</th>
+                        <th>Statut</th>
+                        <th>Inscription</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for provider in providers.items %}
+                    <tr>
+                        <td>
+                            <div>
+                                <div class="font-weight-bold">{{ provider.company_name }}</div>
+                                <div class="text-muted small">{{ provider.user.city or 'Ville non renseignée' }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                {{ provider.category.value | replace('_', ' ') | title }}
+                            </span>
+                        </td>
+                        <td>
+                            <div>
+                                <div>{{ provider.user.get_full_name() or provider.user.username }}</div>
+                                <div class="text-muted small">{{ provider.user.email }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if provider.total_ratings > 0 %}
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">{{ "%.1f"|format(provider.average_rating) }}</span>
+                                    <div class="rating">
+                                        {% for i in range(5) %}
+                                            {% if i < provider.average_rating %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-muted"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <small class="text-muted">({{ provider.total_ratings }} avis)</small>
+                            {% else %}
+                                <span class="text-muted">Aucune note</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                {% if provider.is_verified %}
+                                    <span class="badge bg-success">Vérifié</span>
+                                {% else %}
+                                    <span class="badge bg-warning">En attente</span>
+                                {% endif %}
+                                {% if provider.is_premium %}
+                                    <span class="badge bg-warning">Premium</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ provider.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('backoffice.provider_detail', id=provider.id) }}" 
+                                   class="btn btn-outline-primary" title="Voir détails">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if not provider.is_verified %}
+                                <form method="POST" action="{{ url_for('backoffice.verify_provider', id=provider.id) }}" 
+                                      style="display: inline;">
+                                    <button type="submit" class="btn btn-outline-success" 
+                                            title="Vérifier"
+                                            onclick="return confirm('Vérifier ce prestataire ?')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if providers.pages > 1 %}
+        <nav aria-label="Pagination">
+            <ul class="pagination justify-content-center">
+                {% if providers.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('backoffice.providers', page=providers.prev_num, **request.args) }}">
+                        Précédent
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in providers.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != providers.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('backoffice.providers', page=page_num, **request.args) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">…</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if providers.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('backoffice.providers', page=providers.next_num, **request.args) }}">
+                        Suivant
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

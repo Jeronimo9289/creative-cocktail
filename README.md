@@ -1,3 +1,7 @@
+# ================================
+# README.md
+# ================================
+
 # Creative Cocktail - Plateforme d'Organisation d'Événements
 
 Creative Cocktail est une plateforme web complète dédiée à l'organisation d'événements professionnels et particuliers. Basée sur la méthode "6 Questions, 8 Onglets, 1 Solution", elle permet aux utilisateurs de planifier, organiser et gérer tous les aspects de leurs événements.

@@ -1,0 +1,32 @@
+<!-- ================================ -->
+<!-- app/templates/emails/quote_received.html -->
+<!-- ================================ -->
+
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h2>Nouveau devis reçu !</h2>
+
+<p>Bonjour {{ user_name }},</p>
+
+<p>Vous avez reçu un nouveau devis de <strong>{{ provider_name }}</strong> pour votre événement "<strong>{{ event_title }}</strong>".</p>
+
+<div class="alert">
+    <strong>Détails du devis :</strong><br>
+    Prestataire : {{ provider_name }}<br>
+    Catégorie : {{ category }}<br>
+    Prix proposé : {{ quoted_price }}€<br>
+    Numéro de devis : {{ quote_number }}
+</div>
+
+<p>
+    <a href="{{ quote_url }}" class="btn">Consulter le devis</a>
+</p>
+
+<p>N'hésitez pas à contacter directement le prestataire si vous avez des questions.</p>
+
+<p>
+    Cordialement,<br>
+    L'équipe Creative Cocktail
+</p>
+{% endblock %}

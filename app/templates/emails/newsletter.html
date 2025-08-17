@@ -1,0 +1,52 @@
+<!-- ================================ -->
+<!-- app/templates/emails/newsletter.html -->
+<!-- ================================ -->
+
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h2>{{ newsletter_title }}</h2>
+
+<p>Bonjour,</p>
+
+<p>Voici les dernières actualités de Creative Cocktail :</p>
+
+{% if featured_providers %}
+<h3>🌟 Prestataires en vedette</h3>
+{% for provider in featured_providers %}
+<div style="border: 1px solid #e0e6ed; padding: 15px; margin: 10px 0; border-radius: 6px;">
+    <h4>{{ provider.company_name }}</h4>
+    <p>{{ provider.description[:100] }}...</p>
+    <p><a href="{{ base_url }}/providers/{{ provider.id }}">Voir le profil</a></p>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if recent_events %}
+<h3>📅 Événements récents</h3>
+<ul>
+{% for event in recent_events %}
+    <li><strong>{{ event.title }}</strong> - {{ event.event_type | title }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if tips %}
+<h3>💡 Conseils d'organisation</h3>
+{% for tip in tips %}
+<div style="background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 6px;">
+    <h4>{{ tip.title }}</h4>
+    <p>{{ tip.content }}</p>
+</div>
+{% endfor %}
+{% endif %}
+
+<p>
+    <a href="{{ base_url }}" class="btn">Visiter Creative Cocktail</a>
+</p>
+
+<p>
+    À bientôt sur Creative Cocktail !<br>
+    L'équipe
+</p>
+{% endblock %}

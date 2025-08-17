@@ -1,0 +1,36 @@
+<!-- ================================ -->
+<!-- app/templates/emails/quote_accepted.html -->
+<!-- ================================ -->
+
+{% extends "emails/base.html" %}
+
+{% block content %}
+<h2>🎉 Votre devis a été accepté !</h2>
+
+<p>Bonjour {{ provider_name }},</p>
+
+<p>Excellente nouvelle ! <strong>{{ client_name }}</strong> a accepté votre devis pour l'événement "<strong>{{ event_title }}</strong>".</p>
+
+<div class="alert">
+    <strong>Détails de la commande :</strong><br>
+    Client : {{ client_name }}<br>
+    Événement : {{ event_title }}<br>
+    Montant : {{ quoted_price }}€<br>
+    Numéro de devis : {{ quote_number }}
+</div>
+
+<p>Vous pouvez maintenant contacter votre client pour finaliser les détails :</p>
+<ul>
+    <li>Email : {{ client_email }}</li>
+    <li>Téléphone : {{ client_phone }}</li>
+</ul>
+
+<p>
+    <a href="{{ quote_url }}" class="btn">Voir les détails</a>
+</p>
+
+<p>
+    Félicitations pour cette nouvelle collaboration !<br>
+    L'équipe Creative Cocktail
+</p>
+{% endblock %}

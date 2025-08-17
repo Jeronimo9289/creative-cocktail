@@ -1,0 +1,348 @@
+/* ================================ */
+/* app/static/js/main.js */
+/* ================================ */
+
+// Configuration globale
+const App = {
+    baseUrl: window.location.origin,
+    csrfToken: document.querySelector('meta[name=csrf-token]')?.getAttribute('content'),
+    
+    // Initialisation
+    init() {
+        this.setupEventListeners();
+        this.setupTooltips();
+        this.setupScrollAnimations();
+        this.setupFormValidation();
+    },
+    
+    // Écouteurs d'événements
+    setupEventListeners() {
+        // Recherche en temps réel
+        document.querySelectorAll('.search-input').forEach(input => {
+            input.addEventListener('input', this.debounce(this.handleSearch, 300));
+        });
+        
+        // Filtres dynamiques
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', this.handleFilterChange);
+        });
+        
+        // Boutons de notation
+        document.querySelectorAll('.rating-star').forEach(star => {
+            star.addEventListener('click', this.handleRating);
+        });
+    },
+    
+    // Configuration des tooltips Bootstrap
+    setupTooltips() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    },
+    
+    // Animations au scroll
+    setupScrollAnimations() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate__animated', 'animate__fadeInUp');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        document.querySelectorAll('.card, .feature-card').forEach(el => {
+            observer.observe(el);
+        });
+    },
+    
+    // Validation des formulaires
+    setupFormValidation() {
+        const forms = document.querySelectorAll('.needs-validation');
+        forms.forEach(form => {
+            form.addEventListener('submit', this.handleFormSubmit);
+        });
+    },
+    
+    // Gestionnaire de recherche
+    handleSearch(event) {
+        const query = event.target.value;
+        const searchType = event.target.dataset.searchType;
+        
+        if (query.length >= 2) {
+            App.searchAPI(searchType, query);
+        }
+    },
+    
+    // Gestionnaire de filtres
+    handleFilterChange(event) {
+        const form = event.target.closest('form');
+        if (form) {
+            form.submit();
+        }
+    },
+    
+    // Gestionnaire de notation
+    handleRating(event) {
+        const rating = event.target.dataset.rating;
+        const providerId = event.target.dataset.providerId;
+        
+        App.submitRating(providerId, rating);
+    },
+    
+    // Validation de formulaire
+    handleFormSubmit(event) {
+        const form = event.target;
+        
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        form.classList.add('was-validated');
+    },
+    
+    // API de recherche
+    async searchAPI(type, query) {
+        try {
+            const response = await fetch(`/api/search/${type}?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            this.displaySearchResults(data, type);
+        } catch (error) {
+            console.error('Erreur de recherche:', error);
+        }
+    },
+    
+    // Affichage des résultats de recherche
+    displaySearchResults(results, type) {
+        const resultsContainer = document.querySelector(`#${type}-results`);
+        if (!resultsContainer) return;
+        
+        resultsContainer.innerHTML = '';
+        
+        results.forEach(item => {
+            const resultItem = this.createResultItem(item, type);
+            resultsContainer.appendChild(resultItem);
+        });
+    },
+    
+    // Création d'un élément de résultat
+    createResultItem(item, type) {
+        const div = document.createElement('div');
+        div.className = 'search-result-item p-2 border-bottom';
+        div.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0">${item.name || item.company_name}</h6>
+                    <small class="text-muted">${item.city || item.category}</small>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" onclick="App.selectItem(${item.id}, '${type}')">
+                    Sélectionner
+                </button>
+            </div>
+        `;
+        return div;
+    },
+    
+    // Sélection d'un élément
+    selectItem(id, type) {
+        // Logique de sélection selon le type
+        console.log(`Élément sélectionné: ${type} #${id}`);
+    },
+    
+    // Soumission d'une note
+    async submitRating(providerId, rating) {
+        try {
+            const response = await fetch('/api/ratings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.csrfToken
+                },
+                body: JSON.stringify({
+                    provider_id: providerId,
+                    rating: rating
+                })
+            });
+            
+            if (response.ok) {
+                this.showNotification('Note enregistrée !', 'success');
+            }
+        } catch (error) {
+            this.showNotification('Erreur lors de l\'enregistrement', 'error');
+        }
+    },
+    
+    // Notifications toast
+    showNotification(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        const container = document.querySelector('.toast-container') || this.createToastContainer();
+        container.appendChild(toast);
+        
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Supprimer après fermeture
+        toast.addEventListener('hidden.bs.toast', () => {
+            toast.remove();
+        });
+    },
+    
+    // Création du conteneur de toasts
+    createToastContainer() {
+        const container = document.createElement('div');
+        container.className = 'toast-container position-fixed top-0 end-0 p-3';
+        container.style.zIndex = '1080';
+        document.body.appendChild(container);
+        return container;
+    },
+    
+    // Utilitaire de debounce
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    },
+    
+    // Formatage des dates
+    formatDate(date, locale = 'fr-FR') {
+        return new Date(date).toLocaleDateString(locale, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    },
+    
+    // Formatage des prix
+    formatPrice(price, currency = 'EUR') {
+        return new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: currency
+        }).format(price);
+    }
+};
+
+// Fonctions spécifiques aux devis
+const QuoteManager = {
+    // Demande de devis
+    async requestQuote(providerId, formData) {
+        try {
+            const response = await fetch('/api/quotes/request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': App.csrfToken
+                },
+                body: JSON.stringify({
+                    provider_id: providerId,
+                    ...formData
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                App.showNotification('Demande de devis envoyée !', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('quoteModal')).hide();
+            } else {
+                App.showNotification(result.error || 'Erreur lors de l\'envoi', 'error');
+            }
+        } catch (error) {
+            App.showNotification('Erreur de connexion', 'error');
+        }
+    }
+};
+
+// Gestionnaire d'agenda
+const CalendarManager = {
+    calendar: null,
+    
+    init(containerId) {
+        const calendarEl = document.getElementById(containerId);
+        if (!calendarEl) return;
+        
+        this.calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'fr',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: '/api/events/calendar',
+            eventClick: this.handleEventClick,
+            dateClick: this.handleDateClick
+        });
+        
+        this.calendar.render();
+    },
+    
+    handleEventClick(info) {
+        // Redirection vers le détail de l'événement
+        window.location.href = `/events/${info.event.extendedProps.eventId}`;
+    },
+    
+    handleDateClick(info) {
+        // Création d'un nouvel événement à cette date
+        const createUrl = `/events/create?date=${info.dateStr}`;
+        window.location.href = createUrl;
+    }
+};
+
+// Initialisation quand le DOM est prêt
+document.addEventListener('DOMContentLoaded', function() {
+    App.init();
+    
+    // Initialiser l'agenda si présent
+    if (document.getElementById('calendar')) {
+        CalendarManager.init('calendar');
+    }
+});
+
+// Fonctions globales pour les templates
+window.requestQuote = function(providerId) {
+    if (!document.querySelector('meta[name="user-authenticated"]')) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('quoteModal'));
+    modal.show();
+    
+    // Stocker l'ID du prestataire pour la soumission
+    document.getElementById('quoteModal').dataset.providerId = providerId;
+};
+
+window.sendQuoteRequest = function() {
+    const modal = document.getElementById('quoteModal');
+    const providerId = modal.dataset.providerId;
+    const form = modal.querySelector('form');
+    const formData = new FormData(form);
+    
+    const data = {
+        event_id: formData.get('event_id'),
+        date: formData.get('date'),
+        description: formData.get('description'),
+        participants: formData.get('participants'),
+        budget: formData.get('budget')
+    };
+    
+    QuoteManager.requestQuote(providerId, data);
+};
