@@ -73,7 +73,7 @@ Creative Cocktail est une plateforme web complète dédiée à l'organisation d'
 
 1. **Cloner le repository**
 ```bash
-git clone https://github.com/votre-org/creative-cocktail.git
+git clone https://github.com/Jeronimo9289/creative-cocktail.git
 cd creative-cocktail
 ```
 
@@ -115,7 +115,7 @@ L'application sera accessible sur http://localhost:5000
 
 1. **Cloner et configurer**
 ```bash
-git clone https://github.com/votre-org/creative-cocktail.git
+git clone https://github.com/Jeronimo9289/creative-cocktail.git
 cd creative-cocktail
 cp .env.example .env
 # Configurer les variables d'environnement
@@ -291,7 +291,7 @@ Distribué sous licence MIT. Voir `LICENSE` pour plus d'informations.
 
 - **Documentation** : [docs.creativecocktail.com](https://docs.creativecocktail.com)
 - **Support** : support@creativecocktail.com
-- **Issues** : [GitHub Issues](https://github.com/votre-org/creative-cocktail/issues)
+- **Issues** : [GitHub Issues](https://github.com/Jeronimo9289/creative-cocktail/issues)
 
 ---
 
